@@ -3,6 +3,8 @@ import { FormEvent, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { register } from '@/actions/register';
+import logo from '../../img/logo.png';
+import formImg from '../../img/login.png';
 
 export default function Register() {
   const [error, setError] = useState<string>();
@@ -25,65 +27,70 @@ export default function Register() {
     }
   };
   return (
-    <section className='w-full h-screen flex items-center justify-center'>
-      <form
-        ref={ref}
-        action={handleSubmit}
-        className='p-6 w-full max-w-[400px] flex flex-col justify-between items-center gap-2 
-            border border-solid border-black bg-white rounded'>
-        {error && <div className=''>{error}</div>}
-        <h1 className='mb-5 w-full text-2xl font-bold'>Register</h1>
-        <label className='w-full text-sm'>Email</label>
-        <input
-          type='email'
-          placeholder='Email'
-          className='w-full h-8 border border-solid border-black py-1 px-2.5 rounded'
-          name='email'
-        />
-        <label className='w-full text-sm'> Name</label>
-        <input
-          type='text'
-          placeholder='name'
-          className='w-full h-8 border border-solid border-black py-1 px-2.5 rounded text-[13px]'
-          name='name'
-        />
-        <label className='w-full text-sm'> Username</label>
-        <input
-          type='text'
-          placeholder='username'
-          className='w-full h-8 border border-solid border-black py-1 px-2.5 rounded text-[13px]'
-          name='username'
-        />
-        <label className='w-full text-sm'>Surname</label>
-        <input
-          type='text'
-          placeholder='surname'
-          className='w-full h-8 border border-solid border-black py-1 px-2.5 rounded text-[13px]'
-          name='surname'
-        />
-
-        <label className='w-full text-sm'>Password</label>
-        <div className='flex w-full'>
-          <input
-            type='password'
-            placeholder='Password'
-            className='w-full h-8 border border-solid border-black py-1 px-2.5 rounded'
-            name='password'
-          />
+    <section className='w-full h-screen flex items-center justify-center bg-violet-50'>
+      <div className='w-4/5 h-3/5 flex flex-row items-center justify-center  md:w-3/5  '>
+        <div className=' hidden h-full   lg:block '>
+          {' '}
+          <img src={formImg.src} alt='' className=' w-auto h-full' />
         </div>
+        <div className='w-full h-full bg-white  flex flex-col justify-center items-center gap-0  md:w-96  '>
+          <div>
+            {' '}
+            <img src={logo.src} alt='' className='h-7 w-auto' />
+          </div>
 
-        <button
-          className='w-full border border-solid border-black py-1.5 mt-2.5 rounded
-            transition duration-150 ease hover:bg-black'>
-          Sign up
-        </button>
+          <form
+            ref={ref}
+            className=' p-2 gap-2 w-full h-auto  flex flex-col justify-between items-center
+            bg-white  md:p-6 gap-4  '
+            action={handleSubmit}>
+            {error && <div className='text-black'>{error}</div>}
+            <h1 className='mb-5 w-full text-2xl font-bold text-center'>
+              Register
+            </h1>
+            <div className='w-full p-2 sm:w-4/5 flex flex-col gap-2'>
+              <label className='w-full text-sm'>E-mail</label>
+              <input
+                type='email'
+                placeholder='Email'
+                className='w-full h-10  rounded p-4 bg-[#F4F4FF]'
+                name='email'
+              />
+            </div>
+            <div className='w-full p-2 sm:w-4/5 flex flex-col gap-2'>
+              <label className='w-full text-sm'>Username</label>
+              <input
+                type='text'
+                placeholder='Username'
+                className='w-full h-10  rounded p-4 bg-[#F4F4FF]'
+                name='username'
+              />
+            </div>
+            <div className='w-full p-2 sm:w-4/5 flex flex-col gap-2'>
+              {' '}
+              <label className='w-full text-sm'>Password</label>
+              <div className='flex w-full'>
+                <input
+                  type='password'
+                  placeholder='Password'
+                  className='w-full h-10 rounded p-4 bg-[#F4F4FF]'
+                  name='password'
+                />
+              </div>
+            </div>
 
-        <Link
-          href='/login'
-          className='text-sm text-[#888] transition duration-150 ease hover:text-black'>
-          Already have an account?
-        </Link>
-      </form>
+            <button className='w-full p-3 sm:w-4/5 h-auto bg-[#EF6B4A]  rounded text-white p-3'>
+              Register
+            </button>
+
+            <Link
+              href='/login'
+              className='text-sm text-[#6251DD] transition duration-150 ease hover:text-black'>
+              Already have an account?
+            </Link>
+          </form>
+        </div>
+      </div>
     </section>
   );
 }
