@@ -41,12 +41,12 @@ const UserSchema = new Schema<UserDocument>({
   name: {
     type: String,
     unique: false,
-    required: [true, 'Name is required'],
+    required: false,
   },
   surname: {
     type: String,
     unique: false,
-    required: [true, 'Surname is required'],
+    required: false,
   },
 
   dateOfBirth: {
