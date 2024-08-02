@@ -16,14 +16,14 @@ const Navbar = (props: Props) => {
         </div>
         <Search />
         <div className='flex flex-row gap-4 '>
-          <div className='bg-[#F4F4FF] h-10 w-10 flex items-center justify-center rounded'>
-            <User size={32} />
+          <div className='bg-[#F4F4FF] h-12 w-12 flex items-center justify-center rounded'>
+            <User size={32} className='text-[#090937]' />
           </div>
-          <div className='bg-[#F4F4FF] h-10 w-10 flex items-center justify-center rounded'>
-            <Heart size={32} />
+          <div className='bg-[#F4F4FF] h-12 w-12 flex items-center justify-center rounded'>
+            <Heart size={32} className='text-[#090937]' />
           </div>
-          <div className='bg-[#F4F4FF] h-10 w-10 flex items-center justify-center rounded'>
-            <ShoppingCart size={32} />
+          <div className='bg-[#F4F4FF] h-12 w-12 flex items-center justify-center rounded'>
+            <ShoppingCart size={32} className='text-[#090937]' />
           </div>
         </div>
       </div>
