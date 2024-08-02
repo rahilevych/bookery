@@ -1,4 +1,7 @@
 'use client';
+import CategoryBlock from '@/components/CategoryBlock';
+import Navbar from '@/components/Navbar';
+
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -33,9 +36,14 @@ export default function Home() {
     }
   };
   return (
-    <main className='flex min-h-screen flex-col items-center justify-center'>
-      <h1 className='text-xl'>Home</h1>
-      {showSession()}
-    </main>
+    <div className='bg-white'>
+      <Navbar />
+      <main className='flex flex-col items-center gap-8 bg-white h-screen container mx-auto'>
+        <CategoryBlock />
+        <CategoryBlock />
+        <CategoryBlock />
+        {/* {showSession()} */}
+      </main>
+    </div>
   );
 }
