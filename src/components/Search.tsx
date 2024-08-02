@@ -10,7 +10,7 @@ const Search = (props: Props) => {
       <input
         type='text'
         placeholder='Search'
-        className='bg-[#F4F4FF] w-full h-full rounded p-3 placeholder-gray-400::placeholder'
+        className='bg-[#F4F4FF] w-full h-full rounded p-3 placeholder-gray-400::placeholder   focus:outline-none  focus:border-transparent'
       />
     </div>
   );
