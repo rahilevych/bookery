@@ -83,5 +83,5 @@ const BookSchema = new Schema<BookDocument>({
     required: false,
   },
 });
-const User = mongoose.models?.User || model<BookDocument>('User', BookSchema);
-export default User;
+const Book = mongoose.models?.Book || model<BookDocument>('Book', BookSchema);
+export default Book;
