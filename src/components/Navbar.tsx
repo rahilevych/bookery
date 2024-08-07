@@ -3,6 +3,7 @@ import React from 'react';
 import Search from './Search';
 import logo from '../img/logo.png';
 import { Heart, ShoppingCart, User } from '@phosphor-icons/react';
+import Link from 'next/link';
 
 type Props = {};
 
@@ -17,7 +18,9 @@ const Navbar = (props: Props) => {
         <Search />
         <div className='flex flex-row gap-4 '>
           <div className='bg-[#F4F4FF] h-12 w-12 flex items-center justify-center rounded'>
-            <User size={32} className='text-[#090937]' />
+            <Link href='login'>
+              <User size={32} className='text-[#090937]' />
+            </Link>{' '}
           </div>
           <div className='bg-[#F4F4FF] h-12 w-12 flex items-center justify-center rounded'>
             <Heart size={32} className='text-[#090937]' />
