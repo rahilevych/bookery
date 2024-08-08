@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mui/material-next": "^6.0.0-alpha.126",
     "@phosphor-icons/react": "^2.1.7",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
