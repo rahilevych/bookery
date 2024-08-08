@@ -8,14 +8,29 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
   const searchParams = req.nextUrl.searchParams;
   const page = searchParams.get('page');
   const size = searchParams.get('size');
+  const query = searchParams.get('query');
+
   console.log('searchParams>>>>', searchParams);
   try {
+    let input = {};
+    if (query) {
+      input = {
+        $or: [
+          { authors: query },
+          { title: query },
+          { categories: query },
+          { subtitle: query },
+        ],
+      };
+    }
+
     await connectDB();
     const pageNumber = parseInt(page as string, 10) || 1;
     const amountBooksPage = parseInt(size as string, 10) || 20;
-    const books = await Book.find({})
-      .skip(pageNumber * amountBooksPage)
+    const books = await Book.find(input)
+      .skip((pageNumber - 1) * amountBooksPage)
       .limit(amountBooksPage);
+    console.log('books>>>>>>>> ' + books);
     return Response.json({ books: books });
   } catch (error) {
     console.error('Error by getting list of books', error);
