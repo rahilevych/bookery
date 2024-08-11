@@ -1,7 +1,9 @@
 'use client';
 import React from 'react';
 import bookImg from '../img/book.png';
+import { useBooksContext } from '@/context/BookContext';
 type Props = {
+  _id: string;
   img: string;
   author: string;
   title: string;
