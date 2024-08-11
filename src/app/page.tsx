@@ -70,12 +70,15 @@ export default function Home() {
           {' '}
           {books && books.length > 0 ? (
             books.map((book) => (
-              <BookPreview
-                key={book._id}
-                img={book.thumbnail}
-                author={book.authors}
-                title={book.title}
-              />
+              <Link key={book._id} href={`book/${book._id}`}>
+                <BookPreview
+                  key={book._id}
+                  _id={book._id}
+                  img={book.thumbnail}
+                  author={book.authors}
+                  title={book.title}
+                />
+              </Link>
             ))
           ) : (
             <p>No books found</p>
