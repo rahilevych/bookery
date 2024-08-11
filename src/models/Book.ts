@@ -13,9 +13,11 @@ export interface BookDocument {
   average_rating: number;
   num_pages: number;
   ratings_count: number;
+  comments: [string];
 }
 
 const BookSchema = new Schema<BookDocument>({
+  // _id: { type: Schema.Types.ObjectId, required: true },
   isbn13: {
     type: Number,
     unique: true,
@@ -81,6 +83,9 @@ const BookSchema = new Schema<BookDocument>({
     type: Number,
     unique: false,
     required: false,
+  },
+  comments: {
+    type: [String],
   },
 });
 const Book = mongoose.models?.Book || model<BookDocument>('Book', BookSchema);
