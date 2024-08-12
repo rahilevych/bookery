@@ -2,10 +2,10 @@
 import Navbar from '@/components/Navbar';
 import { CaretLeft, Heart } from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
-import bookImg from '../../../img/bookImg.png'; // Возможно, это не используется
 import { useParams } from 'next/navigation';
 import { useBooksContext } from '@/context/BookContext';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 type Props = {};
 
@@ -13,44 +13,144 @@ const DetailsPage = (props: Props) => {
   const { fetchOneBook, book } = useBooksContext();
   const { id } = useParams();
   const [text, setText] = useState('');
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isLiked, setIsLiked] = useState(false);
+
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (id) {
       fetchOneBook(id.toString());
-      console.log('bookID>>>>' + id);
+      checkIfLiked();
+      fetchComments();
     }
   }, []);
 
   const handleInputChangeComment = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
   };
+
   async function addComment() {
     try {
-      await fetch(`/api/book?id=${id}`);
+      const userId = session?.user?.id;
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      const response = await fetch(
+        `/api/comment?bookId=${id}&userId=${userId}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, book_id: id, text }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to add comment');
+      }
+
+      await fetchComments();
     } catch (error) {
-      console.log('Failed to delete the pet.');
+      console.log('Failed to add comment', error);
     }
   }
 
-  const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  async function fetchComments() {
+    try {
+      const res = await fetch(`/api/comment?bookId=${id}`);
+      if (!res.ok) {
+        throw new Error('Error fetching comments');
+      }
+      const data = await res.json();
+      setComments(data.comments);
+    } catch (error) {
+      console.error('Error fetching comments', error);
+    }
+  }
 
-    if (book && text.trim() !== '' && id) {
-      const formData = new FormData();
-      formData.append('text', text);
-      //formData.append('user_id', user._id);
-      formData.append('book_id', book._id);
+  async function deleteComment(commentId: string) {
+    try {
+      const userId = session?.user?.id;
+      const response = await fetch(
+        `/api/comment?bookId=${id}&commentId=${commentId}&userId=${userId}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
-      await addComment();
-      // await getCommentsByIds(post.comments);
-      // await getPostById(id);
-      setText('');
-    } else {
-      console.error('User, post or text is missing');
+      if (!response.ok) {
+        throw new Error('Failed to delete comment');
+      }
+
+      await fetchComments();
+    } catch (error) {
+      console.error('Failed to delete comment', error);
+    }
+  }
+
+  const checkIfLiked = async () => {
+    try {
+      const userId = session?.user?.id;
+      if (!userId || !id) return;
+
+      const response = await fetch(
+        `/api/isLiked?bookId=${id}&userId=${userId}`,
+        {
+          method: 'GET',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to like/unlike the book');
+      }
+
+      const data = await response.json();
+      setIsLiked(data.isLiked);
+      console.log('isLiked' + isLiked);
+    } catch (error) {
+      console.error('Failed to like/unlike the book:', error);
     }
   };
+
+  const handleLike = async () => {
+    try {
+      const userId = session?.user?.id;
+      if (!userId || !id) return;
+
+      const response = await fetch(
+        `/api/wishlist?bookId=${id}&userId=${userId}`,
+        {
+          method: 'POST',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to like/unlike the book');
+      }
+
+      const data = await response.json();
+      setIsLiked(data.isLiked); // Обновляем состояние лайка
+    } catch (error) {
+      console.error('Failed to like/unlike the book:', error);
+    }
+  };
+
+  const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (text.trim() !== '' && id) {
+      await addComment();
+      setText('');
+      if (id) {
+        fetchOneBook(id.toString());
+      }
+    } else {
+      console.error('Text or book ID is missing');
+    }
+  };
+
   return (
-    <div className='bg-white  mh-screen h-auto'>
+    <div className='bg-white mh-screen h-auto'>
       <Navbar />
       <div className='container mx-auto p-6'>
         <div className='flex flex-row w-full justify-between items-center mb-10'>
@@ -63,9 +163,13 @@ const DetailsPage = (props: Props) => {
             </div>
           </Link>
 
-          <div>
+          <button
+            onClick={handleLike}
+            className={`flex items-center justify-center ${
+              isLiked ? 'text-red-500' : 'text-gray-500'
+            }`}>
             <Heart size={32} />
-          </div>
+          </button>
         </div>
 
         <div className='flex flex-row items-start justify-between gap-10'>
@@ -101,10 +205,11 @@ const DetailsPage = (props: Props) => {
               </label>
               <input
                 onChange={handleInputChangeComment}
+                value={text}
                 id='comment'
-                // rows={4}
                 className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-                placeholder='Write your comment here...'></input>
+                placeholder='Write your comment here...'
+              />
             </div>
 
             <div className='flex items-center justify-between'>
@@ -120,18 +225,30 @@ const DetailsPage = (props: Props) => {
             <h3 className='text-xl font-semibold mb-4'>Comments</h3>
 
             <div className='border-t border-gray-300 pt-4'>
-              <div className='flex items-start mb-4'>
-                <div className='w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold mr-4'>
-                  A
-                </div>
-                <div>
-                  <p className='text-gray-800 font-semibold'>Alice</p>
-                  <p className='text-gray-600 mt-1'>
-                    This book was a fantastic read! I loved the characters and
-                    the plot twists.
-                  </p>
-                </div>
-              </div>
+              {comments && comments.length > 0 ? (
+                comments.map((comment: any, index: number) => (
+                  <div key={index} className='flex items-start mb-4'>
+                    <div className='w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold mr-4'>
+                      u
+                    </div>
+                    <div>
+                      <p className='text-gray-800 font-semibold'>
+                        {comment.user_id}
+                      </p>
+                      <p className='text-gray-600 mt-1'>{comment.text}</p>
+                      {session?.user?.id === comment.user_id && (
+                        <button
+                          onClick={() => deleteComment(comment._id)}
+                          className='text-red-500 mt-2'>
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className='text-gray-600'>No comments yet.</p>
+              )}
             </div>
           </div>
         </div>
