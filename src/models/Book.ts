@@ -1,4 +1,6 @@
 import mongoose, { Schema, model } from 'mongoose';
+
+import Comment from '@/models/Comment';
 export interface BookDocument {
   _id: string;
   isbn13: number;
@@ -13,7 +15,8 @@ export interface BookDocument {
   average_rating: number;
   num_pages: number;
   ratings_count: number;
-  comments: [string];
+  likes: mongoose.Schema.Types.ObjectId[];
+  comments: mongoose.Schema.Types.ObjectId[];
 }
 
 const BookSchema = new Schema<BookDocument>({
@@ -84,9 +87,19 @@ const BookSchema = new Schema<BookDocument>({
     unique: false,
     required: false,
   },
-  comments: {
-    type: [String],
-  },
+  likes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      unique: true,
+    },
+  ],
+  comments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Сomment',
+    },
+  ],
 });
 const Book = mongoose.models?.Book || model<BookDocument>('Book', BookSchema);
 export default Book;
