@@ -1,5 +1,6 @@
 'use client';
 import { BookDocument } from '@/models/Book';
+import { Book } from '@/types/types';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ReactNode,
@@ -17,10 +18,10 @@ type BookTypeContext = {
   setPageNumber: (number: number) => void;
   fetchBooks: () => Promise<void>;
   searchBooks: () => Promise<void>;
-  books: BookDocument[];
-  book: BookDocument | null;
+  books: Book[];
+  book: Book | null;
 
-  setBook: (book: BookDocument) => void;
+  setBook: (book: Book) => void;
   fetchOneBook: (bookId: string) => Promise<void>;
 };
 const BooksContext = createContext<BookTypeContext>({
@@ -48,11 +49,11 @@ const BooksContext = createContext<BookTypeContext>({
 
 export function BooksWrapper({ children }: { children: React.ReactNode }) {
   const [input, setInput] = useState('');
-  const [books, setBooks] = useState<BookDocument[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [amountOfItems, setAmountOfItems] = useState(20);
   const [bookId, setBookId] = useState('');
-  const [book, setBook] = useState<BookDocument | null>(null);
+  const [book, setBook] = useState<Book | null>(null);
 
   async function fetchBooks() {
     console.log('pageB sizeB', pageNumber, amountOfItems);
