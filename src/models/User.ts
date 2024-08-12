@@ -12,10 +12,9 @@ export interface UserDocument {
   postcode: number;
   avatar: string;
   createdAt: Date;
-  savedBooks: [string];
-  likedBooks: [string];
-  boughtBooks: [string];
-  orders: [string];
+  likedBooks: mongoose.Schema.Types.ObjectId[];
+  boughtBooks: [];
+  orders: [];
 }
 
 const UserSchema = new Schema<UserDocument>({
@@ -81,16 +80,13 @@ const UserSchema = new Schema<UserDocument>({
     required: true,
     default: Date.now,
   },
-  savedBooks: {
-    type: [String],
-    unique: false,
-    required: false,
-  },
-  likedBooks: {
-    type: [String],
-    unique: false,
-    required: false,
-  },
+  likedBooks: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Book',
+      unique: true,
+    },
+  ],
   boughtBooks: {
     type: [String],
     unique: false,
