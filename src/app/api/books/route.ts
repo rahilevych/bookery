@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { connectDB } from '@/lib/mongodb';
 import Book from '@/models/Book';
 import { NextRequest } from 'next/server';
-
+import Comment from '@/models/Comment';
 export async function GET(req: NextRequest, res: NextApiResponse) {
   const searchParams = req.nextUrl.searchParams;
   const page = searchParams.get('page');
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
     const books = await Book.find(input)
       .skip((pageNumber - 1) * amountBooksPage)
       .limit(amountBooksPage);
-    console.log('books>>>>>>>> ' + books);
+
     return Response.json({ books: books });
   } catch (error) {
     console.error('Error by getting list of books', error);
