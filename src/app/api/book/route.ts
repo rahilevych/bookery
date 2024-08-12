@@ -11,17 +11,8 @@ type Params = {
 };
 
 export async function GET(req: Request, res: NextResponse) {
-  //const searchParams = req.nextUrl.searchParams;
-  //const bookId = searchParams.get('id');
-  //console.log(bookId);
-  //console.log(req);
-  //const bookId = context.params.bookId;
-
-  //console.log('searchParams>>>>', bookId);
-  // console.log('req>>>>', req);
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
-  // const { id } = req.query;
   console.log('searchParams>>>>', id);
   try {
     await connectDB();
