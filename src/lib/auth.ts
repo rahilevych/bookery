@@ -1,14 +1,13 @@
 import { connectDB } from '@/lib/mongodb';
 import User from '@/models/User';
 import type { NextAuthOptions } from 'next-auth';
-import credentials from 'next-auth/providers/credentials';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    credentials({
+    CredentialsProvider({
       name: 'Credentials',
-      id: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
@@ -27,11 +26,33 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!passwordMatch) throw new Error('Wrong Password');
-        return user;
+
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+        };
       },
     }),
   ],
   session: {
     strategy: 'jwt',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        console.log('User object:', user);
+        token.id = user.id;
+      }
+      console.log('JWT token:', token);
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
+      console.log('Session object:', session);
+      return session;
+    },
   },
 };
