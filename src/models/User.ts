@@ -13,8 +13,8 @@ export interface UserDocument {
   avatar: string;
   createdAt: Date;
   likedBooks: mongoose.Schema.Types.ObjectId[];
-  boughtBooks: [];
-  orders: [];
+  boughtBooks: mongoose.Schema.Types.ObjectId[];
+  orders: mongoose.Schema.Types.ObjectId[];
 }
 
 const UserSchema = new Schema<UserDocument>({
@@ -87,16 +87,22 @@ const UserSchema = new Schema<UserDocument>({
       unique: true,
     },
   ],
-  boughtBooks: {
-    type: [String],
-    unique: false,
-    required: false,
-  },
-  orders: {
-    type: [String],
-    unique: false,
-    required: false,
-  },
+  boughtBooks: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Book',
+      required: false,
+      unique: true,
+    },
+  ],
+  orders: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: false,
+      unique: true,
+    },
+  ],
 });
 const User = mongoose.models?.User || model<UserDocument>('User', UserSchema);
 export default User;
