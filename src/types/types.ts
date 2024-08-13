@@ -14,3 +14,31 @@ export type Book = {
   ratings_count: number;
   comments: [string];
 };
+export type User = {
+  _id: string;
+  email: string;
+  password: string;
+  username: string;
+  name: string;
+  surname: string;
+  dateOfBirth: Date;
+  country: string;
+  city: string;
+  postcode: number;
+  avatar: string;
+  createdAt: Date;
+  likedBooks: [string];
+  boughtBooks: [];
+  orders: [];
+};
+export type Order = {
+  _id: string;
+  user_id: string;
+  book_list: string[];
+  country: string;
+  city: string;
+  postcode: number;
+  address: string;
+  totalPrice: number;
+  createdAt: Date;
+};
