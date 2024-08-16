@@ -3,23 +3,22 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { connectDB } from '@/lib/mongodb';
 import Book from '@/models/Book';
 import { NextRequest } from 'next/server';
-import Comment from '@/models/Comment';
+
 export async function GET(req: NextRequest, res: NextApiResponse) {
   const searchParams = req.nextUrl.searchParams;
   const page = searchParams.get('page');
   const size = searchParams.get('size');
   const query = searchParams.get('query');
-
-  console.log('searchParams>>>>', searchParams);
   try {
     let input = {};
     if (query) {
+      const regex = new RegExp(query, 'i');
       input = {
         $or: [
-          { authors: query },
-          { title: query },
-          { categories: query },
-          { subtitle: query },
+          { authors: regex },
+          { title: regex },
+          { categories: regex },
+          { subtitle: regex },
         ],
       };
     }
@@ -31,9 +30,13 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
       .skip((pageNumber - 1) * amountBooksPage)
       .limit(amountBooksPage);
 
-    return Response.json({ books: books });
+    return new Response(JSON.stringify({ books }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Error by getting list of books', error);
-    return Response.json({ error: 'Server error' });
+    return new Response(JSON.stringify({ error: 'Server error' }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
