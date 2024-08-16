@@ -30,7 +30,6 @@ export async function GET(req: NextRequest) {
 
     let isLiked =
       user.likedBooks.includes(bookId) && book.likes.includes(userId);
-    console.log('isLiked from is liked>>>>' + isLiked);
 
     return NextResponse.json({ isLiked: isLiked }, { status: 200 });
   } catch (error) {
