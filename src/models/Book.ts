@@ -17,6 +17,7 @@ export interface BookDocument {
   ratings_count: number;
   likes: mongoose.Schema.Types.ObjectId[];
   comments: mongoose.Schema.Types.ObjectId[];
+  price: number;
 }
 
 const BookSchema = new Schema<BookDocument>({
@@ -48,7 +49,7 @@ const BookSchema = new Schema<BookDocument>({
   authors: {
     type: String,
     unique: false,
-    required: true,
+    required: false,
   },
 
   categories: {
@@ -70,6 +71,11 @@ const BookSchema = new Schema<BookDocument>({
     type: Number,
     unique: false,
     required: false,
+  },
+  price: {
+    type: Number,
+    unique: false,
+    required: true,
   },
 
   average_rating: {

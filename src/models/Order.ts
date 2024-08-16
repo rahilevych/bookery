@@ -8,6 +8,7 @@ export interface OrderDocument {
   postcode: number;
   address: string;
   totalPrice: number;
+  status: string;
   createdAt: Date;
 }
 
@@ -57,6 +58,11 @@ const OrderSchema = new Schema<OrderDocument>({
     unique: false,
     required: true,
     default: Date.now,
+  },
+  status: {
+    type: String,
+    unique: false,
+    required: [true, 'Text is required'],
   },
 });
 const Order =

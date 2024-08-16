@@ -15,6 +15,7 @@ export interface UserDocument {
   likedBooks: mongoose.Schema.Types.ObjectId[];
   boughtBooks: mongoose.Schema.Types.ObjectId[];
   orders: mongoose.Schema.Types.ObjectId[];
+  cart: mongoose.Schema.Types.ObjectId;
 }
 
 const UserSchema = new Schema<UserDocument>({
@@ -103,6 +104,12 @@ const UserSchema = new Schema<UserDocument>({
       unique: true,
     },
   ],
+  cart: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: false,
+    unique: true,
+  },
 });
 const User = mongoose.models?.User || model<UserDocument>('User', UserSchema);
 export default User;
