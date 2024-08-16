@@ -13,6 +13,7 @@ export type Book = {
   num_pages: number;
   ratings_count: number;
   comments: [string];
+  price: number;
 };
 export type User = {
   _id: string;
@@ -41,4 +42,14 @@ export type Order = {
   address: string;
   totalPrice: number;
   createdAt: Date;
+  status: string;
 };
+export type Cart = {
+  _id: string;
+  user_id: string;
+  items_list: CartItem[];
+  price: number;
+  status: string;
+  createdAt: Date;
+};
+export type CartItem = { bookId: string; amount: number };
