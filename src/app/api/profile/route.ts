@@ -39,7 +39,6 @@ export async function PUT(req: NextRequest) {
 
     const body = await req.json();
 
-    console.log('body avatar>>>>>>' + body.avatar);
     if (body.avatar) {
       const img = await cloudinary.uploader.upload(body.avatar, {
         upload_preset: 'user_preset',
