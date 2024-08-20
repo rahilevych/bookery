@@ -1,31 +1,48 @@
-import { useBooksContext } from '@/context/BookContext';
+import React, { useState, useCallback, useRef } from 'react';
 import { MagnifyingGlass } from '@phosphor-icons/react';
-import React, { useState } from 'react';
+import { useBooksContext } from '@/context/BookContext';
 
 type Props = {};
 
 const Search = (props: Props) => {
-  const { setInput, input, fetchBooks } = useBooksContext();
+  const { setInput, fetchBooks, setPageNumber } = useBooksContext();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debounceFetchBooks = useCallback(
+    (value: string) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      debounceTimeoutRef.current = setTimeout(() => {
+        setInput(value);
+        setPageNumber(1);
+        fetchBooks();
+      }, 300);
+    },
+    [fetchBooks, setInput]
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
-      setInput(e.target.value);
-      fetchBooks();
-    } else if (e.target.value === '') {
-      setInput('');
-    }
+    const value = e.target.value;
+    setSearchTerm(value);
+    debounceFetchBooks(value);
+    setPageNumber(1);
   };
 
-  console.log('input  ' + input);
   return (
-    <div className='flex flex-row justify-between items-center bg-[#F4F4FF] h-12 rounded w-3/5 p-3'>
-      <MagnifyingGlass size={32} className='text-gray-400' />
+    <div>
       <input
-        onChange={handleInputChange}
         type='text'
-        placeholder='Search'
-        className='bg-[#F4F4FF] w-full h-full rounded p-3 placeholder-gray-400::placeholder   focus:outline-none  focus:border-transparent'
+        value={searchTerm}
+        onChange={handleInputChange}
+        placeholder='Search for books...'
+        className='w-full p-3 pl-12 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500'
       />
+      <div className='absolute top-1/2 left-3 transform -translate-y-1/2'>
+        <MagnifyingGlass size={20} className='text-gray-500' />
+      </div>
     </div>
   );
 };
