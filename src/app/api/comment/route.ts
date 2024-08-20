@@ -16,7 +16,10 @@ export async function GET(req: NextRequest) {
     if (!bookId) {
       return NextResponse.json({ error: 'Missing bookId' }, { status: 400 });
     }
-    const comments = await Comment.find({ book_id: bookId }).exec();
+    const comments = await Comment.find({ book_id: bookId })
+      .populate('user_id')
+      .exec();
+    console.log(comments);
     return NextResponse.json({ comments: comments });
   } catch (error) {
     console.error('Error by getting comments:', error);
@@ -31,9 +34,9 @@ export async function POST(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const bookId = searchParams.get('bookId');
     const userId = searchParams.get('userId');
-    console.log('user id>>>>' + userId);
+
     const body = await req.json();
-    console.log('user id>>>>' + userId);
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
