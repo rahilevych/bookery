@@ -1,26 +1,78 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import bookImg from '../img/book.png';
-import { useBooksContext } from '@/context/BookContext';
+import { Book } from '@/types/types';
+import { Star, StarHalf } from '@phosphor-icons/react';
 type Props = {
-  _id: string;
-  img: string;
-  author: string;
-  title: string;
+  book: Book;
 };
 
 const BookPreview = (props: Props) => {
-  return (
-    <div className='flex flex-row items-center justify-between w-80 h-52 p-2 bg-[#F4F4FF]'>
-      <div className='flex items-center justify-center '>
-        <img src={props.img} alt='' className='h-full w-auto' />
+  const renderStars = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const totalStars = 5;
+
+    return (
+      <div className='flex items-center'>
+        {Array.from({ length: fullStars }).map((_, index) => (
+          <Star
+            key={index}
+            size={16}
+            className='text-yellow-500'
+            weight='fill'
+          />
+        ))}
+        {hasHalfStar && <StarHalf size={16} className='text-yellow-500' />}
+        {Array.from({
+          length: totalStars - fullStars - (hasHalfStar ? 1 : 0),
+        }).map((_, index) => (
+          <Star
+            key={index + fullStars + (hasHalfStar ? 1 : 0)}
+            size={16}
+            className='text-gray-300'
+            weight='regular'
+          />
+        ))}
       </div>
-      <div className='flex flex-col items-start justify-between h-full'>
+    );
+  };
+
+  return (
+    <div className='flex flex-col w-80 h-96 p-4 bg-white shadow-md rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300'>
+      <div className='flex items-center justify-center h-48'>
+        <img
+          src={props.book.thumbnail || bookImg.src}
+          alt={props.book.title}
+          className='h-full w-auto object-contain rounded-md'
+        />
+      </div>
+      <div className='flex flex-col justify-between flex-grow mt-4'>
         <div>
-          <p className='text-[#090937] font-semibold'>{props.title}</p>
-          <p className='text-[#09093799] font-semibold'>{props.author}</p>
+          <p className='text-lg text-[#090937] font-semibold line-clamp-2'>
+            {props.book.title}
+          </p>
+          <p className='text-sm text-[#09093799] font-medium'>
+            {props.book.authors}
+          </p>
+          <p className='text-sm text-[#09093799]  font-mono'>
+            {props.book.categories}
+          </p>
+          {props.book.average_rating && (
+            <div className='mt-2 flex flex-row gap-1'>
+              {renderStars(props.book.average_rating)}
+              <span className='text-sm text-gray-700'>
+                {props.book.average_rating.toFixed(1)}
+              </span>
+            </div>
+          )}
         </div>
-        <p className='text-[#6251DD] font-bold'>87,75$</p>
+        <div className='flex justify-between items-center mt-4'>
+          <p className='text-lg text-[#6251DD] font-bold'>
+            {props.book.price} $
+          </p>
+        </div>
       </div>
     </div>
   );
