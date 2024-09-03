@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(req: Request, res: NextResponse) {
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get('orderId');
-  console.log('searchParams>>>>', orderId);
+
   try {
     await connectDB();
 
@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
-    console.log('user id>>>>' + userId);
+
     const body = await req.json();
-    console.log('user id>>>>' + userId);
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -41,14 +41,9 @@ export async function POST(req: NextRequest) {
       address: body.address,
       totalPrice: body.totalPrice,
     };
-    //   const newOrder = {
-    //     user_id: userId,
-    //     book_id: bookId,
-    //     text: body.text,
-    //   };
 
     const order = await Order.create(newOrder);
-    await Book.findByIdAndUpdate(userId, { $push: { orders: order._id } });
+    await Order.findByIdAndUpdate(userId, { $push: { orders: order._id } });
     return NextResponse.json({ order });
   } catch (error) {
     console.error('Error by creating order:', error);
@@ -67,8 +62,6 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-
-    console.log('body avatar>>>>>>' + body.avatar);
 
     const order = await Order.findByIdAndUpdate(orderId, body);
 
