@@ -1,11 +1,8 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { UserDocument } from '@/models/User';
-import Navbar from '@/components/Navbar';
+
 import { useSession } from 'next-auth/react';
-import { cloudinary } from '@/config/cloudinary';
-import { User } from '@/types/types';
-const { CLOUDINARY_CLOUD_NAME } = process.env;
+import { User } from '@phosphor-icons/react';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -29,13 +26,13 @@ export default function ProfilePage() {
         method: 'GET',
       });
       const data = await res.json();
-      console.log(data);
       setUser(data.user);
       setFormData(data.user);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
   }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -44,7 +41,6 @@ export default function ProfilePage() {
         ...prevData,
         [name]: value,
       }));
-      console.log(formData);
     }
   };
 
@@ -61,7 +57,6 @@ export default function ProfilePage() {
           ...prevData,
           avatar: result,
         }));
-        console.log(result);
       };
     }
   };
@@ -90,129 +85,97 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className='bg-white min-h-screen h-auto flex flex-col justify-between'>
-      <Navbar />
+    <div className='bg-gray-100 min-h-screen flex flex-col'>
       <div className='container mx-auto p-6'>
-        <div className='mt-8 space-y-4'>
+        <div className='bg-white p-6 rounded-lg shadow-lg'>
           <div className='flex flex-col items-center'>
-            <img
-              src={formData?.avatar}
-              alt='User Avatar'
-              className='w-32 h-32 rounded-full border-cyan-400'
-            />
-            <button
-              className='mt-2 px-4 py-2 bg-green-500 text-white rounded-md'
-              onClick={handleClickFileInput}>
-              Change Avatar
-            </button>
-            <input
-              type='file'
-              accept='image/*'
-              onChange={handleAvatarChange}
-              className='hidden'
-              ref={fileInputRef}
-              name='avatar'
-            />
-            <h1 className='text-2xl font-bold mt-4'>{formData?.username}</h1>
+            <div className='relative'>
+              {formData?.avatar ? (
+                <img
+                  src={formData?.avatar}
+                  className='w-32 h-32 rounded-full border-4 border-purple-500 object-cover'
+                />
+              ) : (
+                <User
+                  size={32}
+                  className='w-32 h-32 rounded-full border-4 border-purple-500 object-cover'
+                />
+              )}
+
+              {isEditing && (
+                <button
+                  className='absolute bottom-0 right-0 bg-purple-600 text-white rounded-full p-2 shadow-md border border-white'
+                  onClick={handleClickFileInput}>
+                  <svg
+                    className='w-6 h-6'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M7 7l10 10M17 7l-10 10'></path>
+                  </svg>
+                </button>
+              )}
+              <input
+                type='file'
+                accept='image/*'
+                onChange={handleAvatarChange}
+                className='hidden'
+                ref={fileInputRef}
+                name='avatar'
+              />
+            </div>
+            <h1 className='text-2xl font-semibold mt-4 text-gray-800'>
+              {formData?.username}
+            </h1>
           </div>
-          <div>
-            <label className='block font-medium text-gray-700'>Email:</label>
-            <input
-              type='email'
-              name='email'
-              value={formData?.email}
-              //value={user?.email}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300'
-            />
-          </div>
-          <div>
-            <label className='block font-medium text-gray-700'>Username:</label>
-            <input
-              type='text'
-              name='username'
-              // value={user?.username}
-              value={formData?.username}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300'
-            />
-          </div>
-          <div>
-            <label className='block font-medium text-gray-700'>Name:</label>
-            <input
-              type='text'
-              name='name'
-              value={formData?.name}
-              // value={user?.name}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300'
-            />
-          </div>
-          <div>
-            <label className='block font-medium text-gray-700'>Surname:</label>
-            <input
-              type='text'
-              name='surname'
-              value={formData?.surname}
-              //value={user?.surname}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300'
-            />
-          </div>
-          <div>
-            <label className='block font-medium text-gray-700'>Country:</label>
-            <input
-              type='text'
-              name='country'
-              value={formData?.country}
-              //value={user?.country}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300'
-            />
-          </div>
-          <div>
-            <label className='block font-medium text-gray-700'>City:</label>
-            <input
-              type='text'
-              name='city'
-              value={formData?.city}
-              //value={user?.city}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300'
-            />
-          </div>
-          <div>
-            <label className='block font-medium text-gray-700'>Postcode:</label>
-            <input
-              type='number'
-              name='postcode'
-              value={formData?.postcode}
-              //value={user?.postcode}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300'
-            />
+          <div className='mt-6 space-y-4'>
+            {[
+              { label: 'Email', name: 'email', type: 'email' },
+              { label: 'Username', name: 'username', type: 'text' },
+              { label: 'Name', name: 'name', type: 'text' },
+              { label: 'Surname', name: 'surname', type: 'text' },
+              { label: 'Country', name: 'country', type: 'text' },
+              { label: 'City', name: 'city', type: 'text' },
+              { label: 'Postcode', name: 'postcode', type: 'number' },
+            ].map((field) => (
+              <div key={field.name}>
+                <label className='block text-sm font-medium text-gray-700'>
+                  {field.label}:
+                </label>
+                <input
+                  type={field.type}
+                  name={field.name}
+                  value={formData?.[field.name] || ''}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                  className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className='container mx-auto p-6'>
-        <div className='text-center mt-6'>
+      <div className='bg-white py-4 shadow-md'>
+        <div className='container mx-auto flex justify-center gap-4'>
           <button
-            className='px-4 py-2 bg-blue-500 text-white rounded-md'
+            className={`px-4 py-2 rounded-md font-semibold text-white transition-colors ${
+              isEditing
+                ? 'bg-red-500 hover:bg-red-600'
+                : 'bg-blue-500 hover:bg-blue-600'
+            }`}
             onClick={() => setIsEditing(!isEditing)}>
             {isEditing ? 'Cancel' : 'Edit Profile'}
           </button>
           {isEditing && (
             <button
               onClick={handleSaveUpdates}
-              className='ml-4 px-4 py-2 bg-green-500 text-white rounded-md'>
+              className='px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors'>
               Save Changes
             </button>
           )}
