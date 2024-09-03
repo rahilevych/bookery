@@ -3,8 +3,8 @@ import { FormEvent, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import formImg from '../../img/login.png';
-import logo from '../../img/logo.png';
+import formImg from '../../img/login.png'; // Предположим, что это изображение используется для фона формы
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [error, setError] = useState<string>('');
@@ -25,59 +25,67 @@ export default function Login() {
 
     if (res?.error) {
       setError(res.error as string);
+      toast.error(res.error as string);
     } else if (res?.ok) {
+      toast.success('Successfully logged in!');
       router.push('/');
     }
   };
 
   return (
-    <section className='w-full h-screen flex items-center justify-center bg-violet-50'>
-      <div className='w-3/5 h-3/5 flex flex-row items-center justify-center md:w-3/5'>
-        <div className='hidden h-full lg:block'>
-          <img src={formImg.src} alt='Form Image' className='w-auto h-full' />
+    <section className='w-full h-screen flex items-center justify-center bg-[#F0F4F8]'>
+      <div className='w-full max-w-4xl h-4/6 flex flex-row items-center justify-center bg-white shadow-lg rounded-lg overflow-hidden'>
+        <div className='hidden lg:block lg:w-1/2 h-full'>
+          <img
+            src={formImg.src}
+            alt='Form Image'
+            className='w-full h-full object-cover'
+          />
         </div>
-        <div className='w-full h-full bg-white flex flex-col justify-center items-center gap-0 md:w-96'>
-          <div>
-            <img src={logo.src} alt='Logo' className='h-7 w-auto' />
+        <div className='w-full lg:w-1/2 flex flex-col justify-center items-center p-8'>
+          <div className='mb-8 text-center'>
+            <h1 className='text-3xl font-semibold text-[#6D28D9]'>Bookery</h1>
+            <p className='text-sm text-gray-600'>Login to your account</p>
           </div>
 
           <form
-            className='p-2 gap-2 w-full h-auto flex flex-col justify-between items-center bg-white md:p-6 gap-4'
+            className='w-full max-w-sm bg-white shadow-md rounded-lg p-8'
             onSubmit={handleSubmit}>
-            {error && <div className='text-black'>{error}</div>}
-            <h1 className='mb-5 w-full text-2xl font-bold text-center'>
-              Login
-            </h1>
-            <div className='w-full p-2 md:w-4/5 flex flex-col gap-2'>
-              <label className='w-full text-sm'>E-mail</label>
+            {error && <div className='mb-4 text-red-600'>{error}</div>}
+            <div className='mb-4'>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                E-mail
+              </label>
               <input
                 type='email'
                 placeholder='Email'
-                className='w-full h-10 rounded p-4'
+                className='w-full h-12 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#6D28D9]'
                 name='email'
                 required
               />
             </div>
-            <div className='w-full p-2 md:w-4/5 flex flex-col gap-2'>
-              <label className='w-full text-sm'>Password</label>
+            <div className='mb-4'>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                Password
+              </label>
               <input
                 type='password'
                 placeholder='Password'
-                className='w-full h-10 rounded p-4 bg-[#F4F4FF]'
+                className='w-full h-12 border border-gray-300 rounded-lg px-4 py-2 bg-[#F4F4FF] focus:outline-none focus:ring-2 focus:ring-[#6D28D9]'
                 name='password'
                 required
               />
             </div>
-
-            <button className='w-full p-2 md:w-4/5 h-auto bg-[#EF6B4A] rounded text-white p-3'>
+            <button className='w-full h-12 bg-[#6D28D9] text-white font-semibold rounded-lg hover:bg-[#4c2c9a] transition duration-150'>
               Sign In
             </button>
-
-            <Link
-              href='/register'
-              className='text-sm text-[#6251DD] transition duration-150 ease hover:text-black'>
-              Don't have an account?
-            </Link>
+            <div className='mt-4 text-center'>
+              <Link
+                href='/register'
+                className='text-sm text-[#6D28D9] hover:text-[#4c2c9a] transition duration-150'>
+                Don't have an account?
+              </Link>
+            </div>
           </form>
         </div>
       </div>
