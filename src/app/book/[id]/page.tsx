@@ -1,42 +1,58 @@
 'use client';
 import Navbar from '@/components/Navbar';
-import { CaretLeft, Heart } from '@phosphor-icons/react';
+import { CaretLeft, Heart, ShoppingCart, User } from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useBooksContext } from '@/context/BookContext';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useCartContext } from '@/context/CartContext';
+import Loader from '@/components/Loader';
+import toast from 'react-hot-toast'; // Импортируйте react-hot-toast
 
 type Props = {};
 
 const DetailsPage = (props: Props) => {
-  const { fetchOneBook, book } = useBooksContext();
+  const {
+    fetchOneBook,
+    book,
+    checkIfInCart,
+    checkIfLiked,
+    setIsInCart,
+    setIsLiked,
+    isLiked,
+    isInCart,
+  } = useBooksContext();
+  const { setCartItems } = useCartContext();
   const { id } = useParams();
   const [text, setText] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
-  const [isLiked, setIsLiked] = useState(false);
 
   const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   useEffect(() => {
     if (id) {
       fetchOneBook(id.toString());
-      checkIfLiked();
+      if (userId && book) {
+        checkIfLiked(userId, id.toString());
+        checkIfInCart(userId, id.toString());
+      }
       fetchComments();
     }
-  }, []);
+  }, [id]);
 
   const handleInputChangeComment = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
   };
 
   async function addComment() {
-    try {
-      const userId = session?.user?.id;
-      if (!userId) {
-        throw new Error('User not authenticated');
-      }
+    if (!userId) {
+      toast.error('Please register or log in to add a comment.');
+      return;
+    }
 
+    try {
       const response = await fetch(
         `/api/comment?bookId=${id}&userId=${userId}`,
         {
@@ -89,31 +105,12 @@ const DetailsPage = (props: Props) => {
     }
   }
 
-  const checkIfLiked = async () => {
-    try {
-      const userId = session?.user?.id;
-      if (!userId || !id) return;
-
-      const response = await fetch(
-        `/api/isLiked?bookId=${id}&userId=${userId}`,
-        {
-          method: 'GET',
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to like/unlike the book');
-      }
-
-      const data = await response.json();
-      setIsLiked(data.isLiked);
-      console.log('isLiked' + isLiked);
-    } catch (error) {
-      console.error('Failed to like/unlike the book:', error);
-    }
-  };
-
   const handleLike = async () => {
+    if (!session?.user) {
+      toast.error('Please register or log in to like this book.');
+      return;
+    }
+
     try {
       const userId = session?.user?.id;
       if (!userId || !id) return;
@@ -130,9 +127,41 @@ const DetailsPage = (props: Props) => {
       }
 
       const data = await response.json();
-      setIsLiked(data.isLiked); // Обновляем состояние лайка
+      setIsLiked(data.isLiked);
+
+      // toast.success('Book was added to wishlist!');
     } catch (error) {
       console.error('Failed to like/unlike the book:', error);
+      toast.error('Failed to like/unlike the book:');
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (!session?.user) {
+      toast.error('Please register or log in to add this book to your cart.');
+      return;
+    }
+
+    try {
+      const userId = session?.user?.id;
+      if (!userId || !id) return;
+
+      const response = await fetch(`/api/cart?bookId=${id}&userId=${userId}`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add book to cart');
+      }
+
+      checkIfInCart(userId, id.toString());
+
+      const data = await response.json();
+      setCartItems(data.cart);
+      toast.success('Book added to cart successfully!');
+    } catch (error) {
+      console.error('Error by adding to the card', error);
+      toast.error('Failed to add book to cart');
     }
   };
 
@@ -150,109 +179,154 @@ const DetailsPage = (props: Props) => {
   };
 
   return (
-    <div className='bg-white mh-screen h-auto'>
-      <Navbar />
-      <div className='container mx-auto p-6'>
-        <div className='flex flex-row w-full justify-between items-center mb-10'>
-          <Link href={'/'}>
-            <div className='flex flex-row items-center gap-5'>
-              <button className='flex items-center justify-center'>
-                <CaretLeft size={32} />
-              </button>
-              <p>Book Details</p>
-            </div>
-          </Link>
+    <div className='bg-white min-h-screen'>
+      {book && book._id === id ? (
+        <div className='container mx-auto p-6'>
+          <div className='flex flex-row w-full justify-between items-center mb-6'>
+            <Link href={'/'}>
+              <div className='flex flex-row items-center gap-5'>
+                <button className='flex items-center justify-center'>
+                  <CaretLeft size={32} className='text-[#6D28D9]' />
+                </button>
+                <p className='text-xl font-semibold text-[#3A3A3A]'>
+                  Books list
+                </p>
+              </div>
+            </Link>
 
-          <button
-            onClick={handleLike}
-            className={`flex items-center justify-center ${
-              isLiked ? 'text-red-500' : 'text-gray-500'
-            }`}>
-            <Heart size={32} />
-          </button>
-        </div>
-
-        <div className='flex flex-row items-start justify-between gap-10'>
-          <div className='flex items-center justify-center p-3 bg-[#F4F4FF] rounded w-96 h-auto'>
-            <img
-              src={book?.thumbnail}
-              alt='Book Thumbnail'
-              className='w-80 h-auto'
-            />
-          </div>
-          <div className='flex flex-col gap-10 w-1/2'>
-            <div>
-              <p className='text-xl font-bold'>{book?.title}</p>
-              <p className='text-gray-700'>{book?.authors}</p>
-            </div>
-
-            <div>
-              <p className='text-lg font-semibold'>Summary</p>
-              <div className='text-gray-600'>{book?.description}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className='max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-10'>
-          <h2 className='text-2xl font-semibold mb-4'>Leave a Comment</h2>
-
-          <form onSubmit={submitForm}>
-            <div className='mb-4'>
-              <label
-                htmlFor='comment'
-                className='block text-gray-700 text-sm font-bold mb-2'>
-                Your Comment:
-              </label>
-              <input
-                onChange={handleInputChangeComment}
-                value={text}
-                id='comment'
-                className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-                placeholder='Write your comment here...'
-              />
-            </div>
-
-            <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-4'>
               <button
-                type='submit'
-                className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'>
-                Submit
+                onClick={handleLike}
+                className={`flex items-center justify-center p-2 ${
+                  isLiked ? 'text-red-500' : 'text-gray-500'
+                } transition-transform transform hover:scale-110 ${
+                  !session?.user ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                disabled={!session?.user}>
+                <Heart size={32} weight={isLiked ? 'fill' : 'regular'} />
+              </button>
+              <button
+                onClick={handleAddToCart}
+                className={`flex items-center justify-center p-2 ${
+                  isInCart ? 'text-[#6D28D9]' : 'text-gray-500'
+                } transition-transform transform hover:scale-110 ${
+                  !session?.user ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                disabled={!session?.user}>
+                <ShoppingCart
+                  size={32}
+                  weight={isInCart ? 'fill' : 'regular'}
+                />
               </button>
             </div>
-          </form>
+          </div>
 
-          <div className='mt-8'>
-            <h3 className='text-xl font-semibold mb-4'>Comments</h3>
+          <div className='flex flex-col md:flex-row items-start gap-10'>
+            <div className='flex flex-col w-full md:w-2/3 gap-6'>
+              <div className='flex flex-col items-center md:items-start'>
+                <img
+                  src={book?.thumbnail}
+                  alt='Book Thumbnail'
+                  className='w-36 md:w-48 h-auto rounded-lg'
+                />
+              </div>
 
-            <div className='border-t border-gray-300 pt-4'>
-              {comments && comments.length > 0 ? (
-                comments.map((comment: any, index: number) => (
-                  <div key={index} className='flex items-start mb-4'>
-                    <div className='w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold mr-4'>
-                      u
-                    </div>
-                    <div>
-                      <p className='text-gray-800 font-semibold'>
-                        {comment.user_id}
-                      </p>
-                      <p className='text-gray-600 mt-1'>{comment.text}</p>
-                      {session?.user?.id === comment.user_id && (
-                        <button
-                          onClick={() => deleteComment(comment._id)}
-                          className='text-red-500 mt-2'>
-                          Delete
-                        </button>
-                      )}
-                    </div>
+              <div>
+                <p className='text-3xl font-bold text-[#3A3A3A] mb-2'>
+                  {book?.title}
+                </p>
+                <p className='text-lg text-gray-600 mb-4'>{book?.authors}</p>
+                <div className='bg-[#F4F4FF] p-4 rounded-lg shadow-md'>
+                  <p className='text-xl font-semibold text-[#3A3A3A] mb-2'>
+                    Summary
+                  </p>
+                  <p className='text-gray-700'>{book?.description}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className='flex flex-col w-full md:w-1/3'>
+              <div className='bg-white p-6 rounded-lg shadow-md h-full'>
+                <h2 className='text-2xl font-semibold text-[#3A3A3A] mb-4'>
+                  Leave a Comment
+                </h2>
+
+                <form onSubmit={submitForm}>
+                  <div className='mb-4'>
+                    <label
+                      htmlFor='comment'
+                      className='block text-gray-700 text-sm font-bold mb-2'>
+                      Your Comment:
+                    </label>
+                    <input
+                      onChange={handleInputChangeComment}
+                      value={text}
+                      id='comment'
+                      className='shadow-md appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                      placeholder='Write your comment here...'
+                    />
                   </div>
-                ))
-              ) : (
-                <p className='text-gray-600'>No comments yet.</p>
-              )}
+
+                  <div className='flex items-center justify-between'>
+                    <button
+                      type='submit'
+                      className='bg-[#6D28D9] hover:bg-[#4a1f9e] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline'>
+                      Submit
+                    </button>
+                  </div>
+                </form>
+
+                <div className='mt-8'>
+                  <h3 className='text-xl font-semibold text-[#3A3A3A] mb-4'>
+                    Comments
+                  </h3>
+
+                  <div className='border-t border-gray-300 pt-4'>
+                    {comments && comments.length > 0 ? (
+                      comments.map((comment: any, index: number) => (
+                        <div
+                          key={index}
+                          className='flex items-start mb-6 border-b border-gray-200 pb-4'>
+                          {comment.user_id?.avatar ? (
+                            <img
+                              src={comment.user_id.avatar}
+                              alt=''
+                              className='w-12 h-12  rounded-full flex items-center justify-center text-white font-bold mr-4'
+                            />
+                          ) : (
+                            <User
+                              size={12}
+                              className='w-12 h-12 rounded-full border-4 border-purple-500 object-cover'
+                            />
+                          )}
+
+                          <div>
+                            <p className='text-gray-800 font-semibold'>
+                              {comment.user_id.username}
+                            </p>
+                            <p className='text-gray-600 mt-1'>{comment.text}</p>
+                            {session?.user?.id === comment.user_id._id && (
+                              <button
+                                onClick={() => deleteComment(comment._id)}
+                                className='text-red-500 mt-2'>
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className='text-gray-600'>No comments yet.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <Loader></Loader>
+      )}
     </div>
   );
 };
