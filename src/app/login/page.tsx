@@ -83,7 +83,7 @@ export default function Login() {
               <Link
                 href='/register'
                 className='text-sm text-[#6D28D9] hover:text-[#4c2c9a] transition duration-150'>
-                Don't have an account?
+                Don&apos;t have an account?
               </Link>
             </div>
           </form>

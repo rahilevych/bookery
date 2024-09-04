@@ -92,6 +92,7 @@ export default function ProfilePage() {
             <div className='relative'>
               {formData?.avatar ? (
                 <img
+                  alt='avatar'
                   src={formData?.avatar}
                   className='w-32 h-32 rounded-full border-4 border-purple-500 object-cover'
                 />
