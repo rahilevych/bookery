@@ -52,4 +52,7 @@ export type Cart = {
   status: string;
   createdAt: Date;
 };
-export type CartItem = { bookId: string; amount: number };
+export type CartItem = {
+  bookId: Book;
+  amount: number;
+};

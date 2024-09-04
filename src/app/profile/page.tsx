@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef } from 'react';
 
 import { useSession } from 'next-auth/react';
-import { User } from '@phosphor-icons/react';
+import { User } from '@/types/types';
+import { User as UserImg } from '@phosphor-icons/react';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -97,7 +98,7 @@ export default function ProfilePage() {
                   className='w-32 h-32 rounded-full border-4 border-purple-500 object-cover'
                 />
               ) : (
-                <User
+                <UserImg
                   size={32}
                   className='w-32 h-32 rounded-full border-4 border-purple-500 object-cover'
                 />
