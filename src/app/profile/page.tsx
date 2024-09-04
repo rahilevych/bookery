@@ -1,6 +1,4 @@
-'use client';
 import { useState, useEffect, useRef } from 'react';
-
 import { useSession } from 'next-auth/react';
 import { User } from '@/types/types';
 import { User as UserImg } from '@phosphor-icons/react';
@@ -38,9 +36,9 @@ export default function ProfilePage() {
     const { name, value } = e.target;
 
     if (formData) {
-      setFormData((prevData: any) => ({
-        ...prevData,
-        [name]: value,
+      setFormData((prevData) => ({
+        ...prevData!,
+        [name as keyof User]: value,
       }));
     }
   };
@@ -54,8 +52,8 @@ export default function ProfilePage() {
       reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result as string;
-        setFormData((prevData: any) => ({
-          ...prevData,
+        setFormData((prevData) => ({
+          ...prevData!,
           avatar: result,
         }));
       };
@@ -94,7 +92,7 @@ export default function ProfilePage() {
               {formData?.avatar ? (
                 <img
                   alt='avatar'
-                  src={formData?.avatar}
+                  src={formData.avatar}
                   className='w-32 h-32 rounded-full border-4 border-purple-500 object-cover'
                 />
               ) : (
@@ -136,29 +134,97 @@ export default function ProfilePage() {
             </h1>
           </div>
           <div className='mt-6 space-y-4'>
-            {[
-              { label: 'Email', name: 'email', type: 'email' },
-              { label: 'Username', name: 'username', type: 'text' },
-              { label: 'Name', name: 'name', type: 'text' },
-              { label: 'Surname', name: 'surname', type: 'text' },
-              { label: 'Country', name: 'country', type: 'text' },
-              { label: 'City', name: 'city', type: 'text' },
-              { label: 'Postcode', name: 'postcode', type: 'number' },
-            ].map((field) => (
-              <div key={field.name}>
-                <label className='block text-sm font-medium text-gray-700'>
-                  {field.label}:
-                </label>
-                <input
-                  type={field.type}
-                  name={field.name}
-                  value={formData?.[field.name] || ''}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
-                />
-              </div>
-            ))}
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>
+                Email:
+              </label>
+              <input
+                type='email'
+                name='email'
+                value={formData?.email ?? ''}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+              />
+            </div>
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>
+                Username:
+              </label>
+              <input
+                type='text'
+                name='username'
+                value={formData?.username ?? ''}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+              />
+            </div>
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>
+                Name:
+              </label>
+              <input
+                type='text'
+                name='name'
+                value={formData?.name ?? ''}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+              />
+            </div>
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>
+                Surname:
+              </label>
+              <input
+                type='text'
+                name='surname'
+                value={formData?.surname ?? ''}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+              />
+            </div>
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>
+                Country:
+              </label>
+              <input
+                type='text'
+                name='country'
+                value={formData?.country ?? ''}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+              />
+            </div>
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>
+                City:
+              </label>
+              <input
+                type='text'
+                name='city'
+                value={formData?.city ?? ''}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+              />
+            </div>
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>
+                Postcode:
+              </label>
+              <input
+                type='number'
+                name='postcode'
+                value={formData?.postcode ?? ''}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className='mt-1 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500'
+              />
+            </div>
           </div>
         </div>
       </div>
