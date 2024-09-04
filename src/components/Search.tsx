@@ -40,9 +40,6 @@ const Search = (props: Props) => {
         placeholder='Search for books...'
         className='w-full p-3 pl-12 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500'
       />
-      <div className='absolute top-1/2 left-3 transform -translate-y-1/2'>
-        <MagnifyingGlass size={20} className='text-gray-500' />
-      </div>
     </div>
   );
 };
