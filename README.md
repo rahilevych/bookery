@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 📚 Bookery
+Bookery is a bookstore built with Next.js. The main goal of this project was to get acquainted with Next.js. The website is fully responsive.
 
-## Getting Started
+## 🗃️ Technologies
+- Next.js
+- React.js
+- TypeScript
+- Tailwind CSS
+- MongoDB
+- Next Auth
+- Context API
 
-First, run the development server:
+## 🤙 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+There are two types of users: registered and unregistered.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Unregistered users can:
+- View the list of books
+- Search for books
+- Read information about books
+- Check prices
+- Register a new account
+### Registered users can:
+- Manage wishlist: add or remove books from the wishlist
+- Add/delete comments: share reviews and feedback on books
+- Manage shopping cart: add or remove books from the cart
+- Edit profile
+## 📽️ The Development Process
+The first step was to understand the concept of Next.js, where server and client work together, which is a bit more complex compared to the basic MERN stack with separate server and client. Once I got the hang of this concept, I started planning the project architecture, determining which pages, server routes, and additional features I needed. For the database, I used a free dataset from Kaggle to display the books.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+On the frontend, pages were divided into components, and each component was broken down into smaller parts. In some parts of the app, I used props to pass data between components, while in others I used Context API. The frontend was built with React + TypeScript, and the backend was written with TypeScript as well. Tailwind CSS was used for styling.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 🧠 What I Learned
+- The server-client interaction in Next.js
+- Next Auth
+- Improved skills in MongoDB
+- Enhanced React.js skills
+- Improved understanding of Context API
+- Gained more proficiency with TypeScript
+## ⬆️ How Can It Be Improved?
+- Add payment systems
+- Add an admin panel
+## 🎥 Demo: Bookery
