@@ -40,4 +40,4 @@ On the frontend, pages were divided into components, and each component was brok
 ## ⬆️ How Can It Be Improved?
 - Add payment systems
 - Add an admin panel
-## 🎥 Demo: Bookery
+## 🎥 Demo: https://bookery-sbic.vercel.app/
