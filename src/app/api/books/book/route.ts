@@ -1,16 +1,11 @@
 import { connectDB } from '@/lib/mongodb';
 import Book from '@/models/Book';
-import mongoose from 'mongoose';
-import { NextApiRequest } from 'next';
-import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
-
-import { NextRequest, NextResponse } from 'next/server';
-
+import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, res: NextResponse) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
-  
+
   try {
     await connectDB();
 
