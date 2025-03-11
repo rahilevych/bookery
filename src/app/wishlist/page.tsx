@@ -1,55 +1,36 @@
 'use client';
 import BookPreview from '@/components/BookPreview';
-import Navbar from '@/components/Navbar';
+
 import { Book } from '@/types/types';
 import Loader from '@/components/Loader';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { CaretLeft } from '@phosphor-icons/react';
+import { deleteBook, getLikedBooks } from '@/services/book.Service';
 
 const WishList = () => {
   const [wishList, setWishList] = useState<Book[]>([]);
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
+  const fetchWishList = async () => {
+    const wishList = userId && (await getLikedBooks(userId));
+    setWishList(wishList);
+  };
+
+  const handleRemoveBook = async (bookId: string) => {
+    userId && (await deleteBook(userId, bookId));
+    setWishList((prevWishList) =>
+      prevWishList.filter((book) => book._id !== bookId)
+    );
+  };
+
   useEffect(() => {
     if (userId) {
       fetchWishList();
     }
   }, [userId]);
-
-  const fetchWishList = async () => {
-    try {
-      const res = await fetch(`/api/wishlist?userId=${userId}`, {
-        method: 'GET',
-      });
-
-      if (!res.ok) throw new Error('Failed to fetch wish list');
-      const data = await res.json();
-      setWishList(data.books);
-    } catch (error) {
-      console.error('Error fetching wish list:', error);
-    }
-  };
-
-  const handleRemoveBook = async (bookId: string) => {
-    try {
-      const res = await fetch(
-        `/api/wishlist?userId=${userId}&bookId=${bookId}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      if (!res.ok) throw new Error('Failed to remove book');
-
-      setWishList((prevWishList) =>
-        prevWishList.filter((book) => book._id !== bookId)
-      );
-    } catch (error) {
-      console.error('Error removing book from wish list:', error);
-    }
-  };
 
   return (
     <div className='bg-white min-h-screen'>

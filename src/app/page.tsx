@@ -1,19 +1,26 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import BookPreview from '@/components/BookPreview';
-import Navbar from '@/components/Navbar';
 import Loader from '@/components/Loader';
 import Search from '@/components/Search';
-import { useBooksContext } from '@/context/BookContext';
+
 import Link from 'next/link';
+import { useApp } from '@/context/AppContext';
+import { fetchBooks } from '@/services/book.Service';
 
 export default function Home() {
-  const { fetchBooks, books, loading, pageNumber, setPageNumber } =
-    useBooksContext();
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const { books, setBooks } = useApp();
+  // const [dataLoaded, setDataLoaded] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const init = async () => {
+    const books = await fetchBooks(pageNumber, 20, '');
+    setBooks(books);
+  };
 
   useEffect(() => {
-    fetchBooks().then(() => setDataLoaded(true));
+    init();
+    // fetchBooks().then(() => setDataLoaded(true));
   }, [pageNumber]);
 
   const handlePrevBtn = () => {
@@ -30,8 +37,8 @@ export default function Home() {
     setPageNumber(page);
   };
 
-  const hasBooks = books.length > 0;
-  const shouldShowNoBooksMessage = !loading && dataLoaded && !hasBooks;
+  const hasBooks = books && books.length > 0;
+  //const shouldShowNoBooksMessage = !loading && dataLoaded && !hasBooks;
 
   const totalPages = 20;
 
@@ -55,65 +62,56 @@ export default function Home() {
   return (
     <div className='bg-white flex flex-col min-h-screen'>
       <main className='flex flex-col items-center justify-between flex-grow container mx-auto px-4'>
-        {loading && !dataLoaded ? (
-          <Loader />
-        ) : (
-          <>
-            {dataLoaded && (
-              <div className='w-full max-w-3xl mx-auto mt-4 mb-8'>
-                <Search />
+        <Suspense fallback={<Loader />}>
+          <div className='w-full max-w-3xl mx-auto mt-4 mb-8'>
+            <Search />
+          </div>
+          {!books ? (
+            <p>No books found</p>
+          ) : (
+            <>
+              <div className='flex flex-row flex-wrap items-center justify-center gap-8'>
+                {books.map((book) => (
+                  <Link key={book._id} href={`book/${book._id}`}>
+                    <BookPreview book={book} />
+                  </Link>
+                ))}
               </div>
-            )}
-            {shouldShowNoBooksMessage ? (
-              <p>No books found</p>
-            ) : (
-              <>
-                <div className='flex flex-row flex-wrap items-center justify-center gap-8'>
-                  {books.map((book) => (
-                    <Link key={book._id} href={`book/${book._id}`}>
-                      <BookPreview book={book} />
-                    </Link>
+              <div className='flex justify-center gap-4 items-center w-full max-w-3xl mt-4 mb-8'>
+                <button
+                  onClick={handlePrevBtn}
+                  className='px-4 py-2 bg-[#6D28D9] text-white rounded-md transition-all duration-300 hover:bg-[#4C1D95]'>
+                  Prev
+                </button>
+                <div className='flex gap-2'>
+                  {pageNumber > visiblePageNumbers && (
+                    <span className='px-4 py-2 text-[#6D28D9]'>...</span>
+                  )}
+                  {getPageNumbers().map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => handlePageClick(num)}
+                      className={`px-4 py-2 rounded-md transition-all duration-300 ${
+                        pageNumber === num
+                          ? 'bg-[#6D28D9] text-white'
+                          : 'bg-[#EDE9FE] text-[#6D28D9] hover:bg-[#D6BCFA]'
+                      }`}>
+                      {num}
+                    </button>
                   ))}
+                  {pageNumber < totalPages - visiblePageNumbers && (
+                    <span className='px-4 py-2 text-[#6D28D9]'>...</span>
+                  )}
                 </div>
-
-                {dataLoaded && (
-                  <div className='flex justify-center gap-4 items-center w-full max-w-3xl mt-4 mb-8'>
-                    <button
-                      onClick={handlePrevBtn}
-                      className='px-4 py-2 bg-[#6D28D9] text-white rounded-md transition-all duration-300 hover:bg-[#4C1D95]'>
-                      Prev
-                    </button>
-                    <div className='flex gap-2'>
-                      {pageNumber > visiblePageNumbers && (
-                        <span className='px-4 py-2 text-[#6D28D9]'>...</span>
-                      )}
-                      {getPageNumbers().map((num) => (
-                        <button
-                          key={num}
-                          onClick={() => handlePageClick(num)}
-                          className={`px-4 py-2 rounded-md transition-all duration-300 ${
-                            pageNumber === num
-                              ? 'bg-[#6D28D9] text-white'
-                              : 'bg-[#EDE9FE] text-[#6D28D9] hover:bg-[#D6BCFA]'
-                          }`}>
-                          {num}
-                        </button>
-                      ))}
-                      {pageNumber < totalPages - visiblePageNumbers && (
-                        <span className='px-4 py-2 text-[#6D28D9]'>...</span>
-                      )}
-                    </div>
-                    <button
-                      onClick={handleNextBtn}
-                      className='px-4 py-2 bg-[#6D28D9] text-white rounded-md transition-all duration-300 hover:bg-[#4C1D95]'>
-                      Next
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
+                <button
+                  onClick={handleNextBtn}
+                  className='px-4 py-2 bg-[#6D28D9] text-white rounded-md transition-all duration-300 hover:bg-[#4C1D95]'>
+                  Next
+                </button>
+              </div>
+            </>
+          )}
+        </Suspense>
       </main>
     </div>
   );

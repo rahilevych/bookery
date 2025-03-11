@@ -1,27 +1,30 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { MagnifyingGlass } from '@phosphor-icons/react';
-import { useBooksContext } from '@/context/BookContext';
+import { useApp } from '@/context/AppContext';
+import { fetchBooks } from '@/services/book.Service';
 
-type Props = {};
-
-const Search = (props: Props) => {
-  const { setInput, fetchBooks, setPageNumber } = useBooksContext();
+const Search = () => {
+  const { setBooks } = useApp();
+  const [pageNumber, setPageNumber] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState('');
 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const loadSearchedBooks = async () => {
+    const books = await fetchBooks(pageNumber, 20, searchTerm);
+    setBooks(books);
+  };
   const debounceFetchBooks = useCallback(
     (value: string) => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
       debounceTimeoutRef.current = setTimeout(() => {
-        setInput(value);
-        setPageNumber(1);
-        fetchBooks();
+        setSearchTerm(value);
+        setPageNumber((prev) => prev);
+        loadSearchedBooks();
       }, 300);
     },
-    [fetchBooks, setInput]
+    [setSearchTerm, setPageNumber, loadSearchedBooks]
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

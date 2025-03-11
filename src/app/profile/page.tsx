@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { User } from '@/types/types';
 import { User as UserImg } from '@phosphor-icons/react';
+import { getUser, updateProfile } from '@/services/user.Service';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -14,22 +15,11 @@ export default function ProfilePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (session) {
-      fetchUser();
-    }
-  }, [userId]);
-
   async function fetchUser() {
-    try {
-      const res = await fetch(`/api/profile?userId=${userId}`, {
-        method: 'GET',
-      });
-      const data = await res.json();
-      setUser(data.user);
-      setFormData(data.user);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
+    if (userId) {
+      const user = await getUser(userId);
+      setUser(user);
+      setFormData(user);
     }
   }
 
@@ -62,19 +52,11 @@ export default function ProfilePage() {
   };
 
   const handleSaveUpdates = async () => {
-    try {
-      const res = await fetch(`/api/profile?userId=${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-      setUser(data);
+    if (userId && formData) {
+      const updatedUser = await updateProfile(userId, formData);
+      setUser(updatedUser);
       setIsEditing(false);
       fetchUser();
-    } catch (error) {
-      console.error('Error saving user data:', error);
     }
   };
 
@@ -83,6 +65,12 @@ export default function ProfilePage() {
       fileInputRef.current.click();
     }
   };
+
+  useEffect(() => {
+    if (session) {
+      fetchUser();
+    }
+  }, [userId]);
 
   return (
     <div className='bg-gray-100 min-h-screen flex flex-col'>

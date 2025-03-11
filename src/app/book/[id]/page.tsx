@@ -1,174 +1,89 @@
 'use client';
-import Navbar from '@/components/Navbar';
+
 import { CaretLeft, Heart, ShoppingCart, User } from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useBooksContext } from '@/context/BookContext';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useCartContext } from '@/context/CartContext';
 import Loader from '@/components/Loader';
-import toast from 'react-hot-toast'; // Импортируйте react-hot-toast
+import toast from 'react-hot-toast';
+import { Book } from '@/types/types';
+import { checkIfLiked, fetchOneBook, likeBook } from '@/services/book.Service';
+import { useApp } from '@/context/AppContext';
+import {
+  deleteComment,
+  getAllComments,
+  postComment,
+} from '@/services/commentService';
+import { addBookToCart, checkIfInCart } from '@/services/cartService';
 
-type Props = {};
-
-const DetailsPage = (props: Props) => {
-  const {
-    fetchOneBook,
-    book,
-    checkIfInCart,
-    checkIfLiked,
-    setIsInCart,
-    setIsLiked,
-    isLiked,
-    isInCart,
-  } = useBooksContext();
-  const { setCartItems } = useCartContext();
+const DetailsPage = () => {
+  const { isLiked, isInCart, setIsInCart, setIsLiked, setCartItems } = useApp();
   const { id } = useParams();
+  const bookId = Array.isArray(id) ? id[0] : id;
+
   const [text, setText] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
-
+  const [book, setBook] = useState<Book | null>(null);
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  useEffect(() => {
-    if (id) {
-      fetchOneBook(id.toString());
-      if (userId && book) {
-        checkIfLiked(userId, id.toString());
-        checkIfInCart(userId, id.toString());
-      }
-      fetchComments();
+  const init = async () => {
+    const book = await fetchOneBook(bookId);
+    setBook(book);
+    if (userId) {
+      setIsInCart(await checkIfInCart(userId, id.toString()));
+      setIsLiked(await checkIfLiked(userId, id.toString()));
     }
-  }, [id]);
+  };
+
+  const fetchComments = async () => {
+    const comments = await getAllComments(bookId);
+    setComments(comments);
+  };
+
+  const handleAddComment = async () => {
+    if (!userId) {
+      toast.error('Please register or log in to add a comment.');
+      return;
+    }
+    await postComment(bookId, userId, text);
+    await fetchComments();
+  };
 
   const handleInputChangeComment = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
   };
 
-  async function addComment() {
-    if (!userId) {
-      toast.error('Please register or log in to add a comment.');
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `/api/comment?bookId=${id}&userId=${userId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: userId, book_id: id, text }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to add comment');
-      }
-
-      await fetchComments();
-    } catch (error) {
-      console.log('Failed to add comment', error);
-    }
-  }
-
-  async function fetchComments() {
-    try {
-      const res = await fetch(`/api/comment?bookId=${id}`);
-      if (!res.ok) {
-        throw new Error('Error fetching comments');
-      }
-      const data = await res.json();
-      setComments(data.comments);
-    } catch (error) {
-      console.error('Error fetching comments', error);
-    }
-  }
-
-  async function deleteComment(commentId: string) {
-    try {
-      const userId = session?.user?.id;
-      const response = await fetch(
-        `/api/comment?bookId=${id}&commentId=${commentId}&userId=${userId}`,
-        {
-          method: 'DELETE',
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to delete comment');
-      }
-
-      await fetchComments();
-    } catch (error) {
-      console.error('Failed to delete comment', error);
-    }
-  }
+  const handleDeleteComment = async (commentId: string) => {
+    await deleteComment(commentId, bookId, session);
+    await fetchComments();
+  };
 
   const handleLike = async () => {
     if (!session?.user) {
       toast.error('Please register or log in to like this book.');
       return;
     }
-
-    try {
-      const userId = session?.user?.id;
-      if (!userId || !id) return;
-
-      const response = await fetch(
-        `/api/wishlist?bookId=${id}&userId=${userId}`,
-        {
-          method: 'POST',
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to like/unlike the book');
-      }
-
-      const data = await response.json();
-      setIsLiked(data.isLiked);
-
-      // toast.success('Book was added to wishlist!');
-    } catch (error) {
-      console.error('Failed to like/unlike the book:', error);
-      toast.error('Failed to like/unlike the book:');
+    setIsLiked(await likeBook(bookId, session));
+    if (!isLiked) {
+      toast.success('Book was added to wishlist!');
     }
   };
 
   const handleAddToCart = async () => {
-    if (!session?.user) {
+    if (!session?.user || !userId) {
       toast.error('Please register or log in to add this book to your cart.');
       return;
     }
-
-    try {
-      const userId = session?.user?.id;
-      if (!userId || !id) return;
-
-      const response = await fetch(`/api/cart?bookId=${id}&userId=${userId}`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add book to cart');
-      }
-
-      checkIfInCart(userId, id.toString());
-
-      const data = await response.json();
-      setCartItems(data.cart);
-      toast.success('Book added to cart successfully!');
-    } catch (error) {
-      console.error('Error by adding to the card', error);
-      toast.error('Failed to add book to cart');
-    }
+    setIsInCart(await checkIfInCart(userId, id.toString()));
+    setCartItems(await addBookToCart(bookId, session));
   };
 
   const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (text.trim() !== '' && id) {
-      await addComment();
+      await handleAddComment();
       setText('');
       if (id) {
         fetchOneBook(id.toString());
@@ -177,6 +92,11 @@ const DetailsPage = (props: Props) => {
       console.error('Text or book ID is missing');
     }
   };
+
+  useEffect(() => {
+    init();
+    fetchComments();
+  }, [id]);
 
   return (
     <div className='bg-white min-h-screen'>
@@ -307,7 +227,7 @@ const DetailsPage = (props: Props) => {
                             <p className='text-gray-600 mt-1'>{comment.text}</p>
                             {session?.user?.id === comment.user_id._id && (
                               <button
-                                onClick={() => deleteComment(comment._id)}
+                                onClick={() => handleDeleteComment(comment._id)}
                                 className='text-red-500 mt-2'>
                                 Delete
                               </button>

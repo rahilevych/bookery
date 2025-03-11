@@ -3,7 +3,7 @@ import { FormEvent, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import formImg from '../../img/login.png'; // Предположим, что это изображение используется для фона формы
+import formImg from '../../img/login.png';
 import toast from 'react-hot-toast';
 
 export default function Login() {
