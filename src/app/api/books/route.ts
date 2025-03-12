@@ -1,10 +1,9 @@
 'use server';
-import { NextApiRequest, NextApiResponse } from 'next';
 import { connectDB } from '@/lib/mongodb';
 import Book from '@/models/Book';
 import { NextRequest } from 'next/server';
 
-export async function GET(req: NextRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const page = searchParams.get('page');
   const size = searchParams.get('size');
@@ -26,11 +25,12 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
     await connectDB();
     const pageNumber = parseInt(page as string, 10) || 1;
     const amountBooksPage = parseInt(size as string, 10) || 20;
+    const totalCount = await Book.countDocuments(input);
     const books = await Book.find(input)
       .skip((pageNumber - 1) * amountBooksPage)
       .limit(amountBooksPage);
 
-    return new Response(JSON.stringify({ books }), {
+    return new Response(JSON.stringify({ books, totalCount }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {

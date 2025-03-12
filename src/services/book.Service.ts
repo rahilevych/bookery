@@ -14,7 +14,7 @@ export const fetchBooks = async (
       throw new Error('Erorr by fetching books');
     }
     const data = await response.json();
-    return data.books;
+    return data;
   } catch (error) {
     console.error('Error by fetching books', error);
   }
