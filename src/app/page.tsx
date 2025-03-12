@@ -17,10 +17,13 @@ export default function Home() {
   const [pageNumber, setPageNumber] = useState(1);
 
   const init = async () => {
-    const data = await fetchBooks(pageNumber, booksProPage, text);
-    console.log(data);
-    setBooks(data.books);
-    setTotalBooks(data.totalCount);
+    try {
+      const data = await fetchBooks(pageNumber, booksProPage, text);
+      setBooks(data.books);
+      setTotalBooks(data.totalCount);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
   };
 
   const handlePageChange = (newPage: number) => {
@@ -42,24 +45,28 @@ export default function Home() {
           <div className='w-full max-w-3xl mx-auto mt-4 mb-8'>
             <Search onInputChange={handleInputChange} text={text} />
           </div>
-          <div className='flex flex-row flex-wrap items-center justify-center gap-8'>
-            {books && books.length > 0 ? (
-              books.map((book) => (
-                <Link key={book._id} href={`book/${book._id}`}>
-                  <BookPreview book={book} />
-                </Link>
-              ))
-            ) : (
-              <p>No books found</p>
-            )}
-          </div>
-          <Pagination
-            pageNumber={pageNumber}
-            totalBooks={totalBooks}
-            booksProPage={booksProPage}
-            onPageChange={handlePageChange}
-          />
         </Suspense>
+
+        {!books ? (
+          <Loader />
+        ) : books && books.length > 0 ? (
+          <div className='flex flex-row flex-wrap items-center justify-center gap-8'>
+            {books.map((book) => (
+              <Link key={book._id} href={`book/${book._id}`}>
+                <BookPreview book={book} />
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className='text-gray-500 text-lg'>No books found</p>
+        )}
+
+        <Pagination
+          pageNumber={pageNumber}
+          totalBooks={totalBooks}
+          booksProPage={booksProPage}
+          onPageChange={handlePageChange}
+        />
       </main>
     </div>
   );
