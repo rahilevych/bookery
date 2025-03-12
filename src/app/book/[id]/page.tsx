@@ -13,52 +13,16 @@ import { useApp } from '@/context/AppContext';
 import { addBookToCart, checkIfInCart } from '@/services/cartService';
 import BookFull from '@/components/BookFull';
 import CommentsList from '@/components/CommentsList';
+import useBook from '@/hooks/useBook';
 
 const DetailsPage = () => {
-  const { isLiked, isInCart, setIsInCart, setIsLiked, setCartItems } = useApp();
-  const { id } = useParams();
-  const bookId = Array.isArray(id) ? id[0] : id;
-
-  const [book, setBook] = useState<Book | null>(null);
   const { data: session } = useSession();
-  const userId = session?.user?.id;
-
-  const init = async () => {
-    const book = await fetchOneBook(bookId);
-    setBook(book);
-    if (userId) {
-      setIsInCart(await checkIfInCart(userId, id.toString()));
-      setIsLiked(await checkIfLiked(userId, id.toString()));
-    }
-  };
-
-  const handleLike = async () => {
-    if (!session?.user) {
-      toast.error('Please register or log in to like this book.');
-      return;
-    }
-    setIsLiked(await likeBook(bookId, session));
-    if (!isLiked) {
-      toast.success('Book was added to wishlist!');
-    }
-  };
-
-  const handleAddToCart = async () => {
-    if (!session?.user || !userId) {
-      toast.error('Please register or log in to add this book to your cart.');
-      return;
-    }
-    setIsInCart(await checkIfInCart(userId, id.toString()));
-    setCartItems(await addBookToCart(bookId, session));
-  };
-
-  useEffect(() => {
-    init();
-  }, [id]);
+  const { book, bookId, isLiked, isInCart, handleLike, handleAddToCart } =
+    useBook();
 
   return (
     <div className='bg-white min-h-screen'>
-      {book && book._id === id ? (
+      {book && book._id === bookId ? (
         <div className='container  mx-auto p-6'>
           <div className='flex flex-row w-full justify-between items-center mb-6'>
             <Link href={'/'}>
