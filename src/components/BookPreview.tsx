@@ -18,7 +18,7 @@ const BookPreview = ({ book }: Props) => {
         />
       </div>
       <div className='flex flex-col justify-between flex-grow mt-4'>
-        <div>
+        <div className='flex flex-col justify-center items-center'>
           <p className='text-lg text-[#090937] font-semibold line-clamp-2'>
             {book.title}
           </p>
@@ -36,7 +36,9 @@ const BookPreview = ({ book }: Props) => {
           )}
         </div>
         <div className='flex justify-between items-center mt-4'>
-          <p className='text-lg text-[#6251DD] font-bold'>{book.price} $</p>
+          <p className='text-lg text-[#6251DD] font-bold '>
+            Price: {book.price} $
+          </p>
         </div>
       </div>
     </div>

@@ -56,3 +56,10 @@ export type CartItem = {
   bookId: Book;
   amount: number;
 };
+export type Comment = {
+  _id: string;
+  user_id: User;
+  book_id: string;
+  text: string;
+  createdAt: Date;
+};
