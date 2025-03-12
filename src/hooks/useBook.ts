@@ -4,7 +4,7 @@ import { addBookToCart, checkIfInCart } from '@/services/cartService';
 import { Book } from '@/types/types';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 const useBook = () => {

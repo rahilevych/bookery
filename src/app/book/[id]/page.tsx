@@ -1,16 +1,9 @@
 'use client';
-
-import { CaretLeft, Heart, ShoppingCart, User } from '@phosphor-icons/react';
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { CaretLeft, Heart, ShoppingCart } from '@phosphor-icons/react';
+import React from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import Loader from '@/components/Loader';
-import toast from 'react-hot-toast';
-import { Book } from '@/types/types';
-import { checkIfLiked, fetchOneBook, likeBook } from '@/services/book.Service';
-import { useApp } from '@/context/AppContext';
-import { addBookToCart, checkIfInCart } from '@/services/cartService';
 import BookFull from '@/components/BookFull';
 import CommentsList from '@/components/CommentsList';
 import useBook from '@/hooks/useBook';

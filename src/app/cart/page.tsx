@@ -1,14 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import CartItemComponent from '@/components/CartItemComponent';
 import { useApp } from '@/context/AppContext';
-import { getCartItems } from '@/services/cartService';
 import { useCart } from '@/hooks/useCart';
 
 export default function CartPage() {
-  const { cartItems, setCartItems } = useApp();
+  const { cartItems } = useApp();
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const {
