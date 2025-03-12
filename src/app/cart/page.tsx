@@ -4,75 +4,26 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import CartItemComponent from '@/components/CartItemComponent';
 import { useApp } from '@/context/AppContext';
-import {
-  deleteCart,
-  getCartItems,
-  updateCartInDB,
-} from '@/services/cartService';
+import { getCartItems } from '@/services/cartService';
+import { useCart } from '@/hooks/useCart';
 
 export default function CartPage() {
   const { cartItems, setCartItems } = useApp();
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const { data: session } = useSession();
-  const userId = session?.user.id;
-
-  const init = async () => {
-    if (session?.user.id) {
-      const items = await getCartItems(session?.user?.id);
-      setCartItems(items);
-    } else {
-      setCartItems([]);
-    }
-  };
-
-  const handleIncrease = (id: string) => {
-    const updatedItems =
-      cartItems &&
-      cartItems.map((item) =>
-        item.bookId._id === id ? { ...item, amount: item.amount + 1 } : item
-      );
-    setCartItems(updatedItems);
-    updatedItems && updateCartInDB(updatedItems, session);
-  };
-
-  const handleDecrease = (id: string) => {
-    const updatedItems =
-      cartItems &&
-      cartItems.map((item) =>
-        item.bookId._id === id && item.amount > 1
-          ? { ...item, amount: item.amount - 1 }
-          : item
-      );
-    setCartItems(updatedItems);
-    updatedItems && updateCartInDB(updatedItems, session);
-  };
-
-  const handleRemove = (id: string) => {
-    const updatedItems =
-      cartItems && cartItems.filter((item) => item.bookId._id !== id);
-    setCartItems(updatedItems);
-    updatedItems && updateCartInDB(updatedItems, session);
-  };
+  const userId = session?.user?.id;
+  const {
+    handleIncrease,
+    handleDecrease,
+    handleRemove,
+    handleCheckout,
+    showConfirmation,
+  } = useCart();
 
   const totalPrice =
-    cartItems &&
-    cartItems.reduce(
+    cartItems?.reduce(
       (total, item) => total + item.bookId.price * item.amount,
       0
-    );
-
-  const handleCheckout = async () => {
-    try {
-      setShowConfirmation(true);
-      await deleteCart(session);
-    } catch (error) {
-      console.error('Error deleting cart:', error);
-    }
-  };
-
-  useEffect(() => {
-    init();
-  }, [session]);
+    ) ?? 0;
 
   return (
     <div className='bg-gray-100 min-h-screen flex flex-col pt-6'>
