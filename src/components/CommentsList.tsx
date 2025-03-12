@@ -48,6 +48,7 @@ const CommentsList = ({ bookId }: Props) => {
             {comments && comments.length > 0 ? (
               comments.map((comment: any) => (
                 <CommentItem
+                  key={comment._id}
                   comment={comment}
                   onCommentsUpdate={handleUpdateComments}
                 />
