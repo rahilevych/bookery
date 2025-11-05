@@ -1,9 +1,7 @@
 import { connectDB } from '@/lib/mongodb';
 import Book from '@/models/Book';
 import Comment from '@/models/Comment';
-import { User } from '@phosphor-icons/react';
-import { getToken } from 'next-auth/jwt';
-
+import User from '@/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
