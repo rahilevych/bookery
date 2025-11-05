@@ -18,7 +18,7 @@ const CommentsList = ({ bookId }: Props) => {
   const handleUpdateComments = (currentComment: Comment) => {
     setComments((prevComments) => {
       const isExist = prevComments.some(
-        (comment) => comment._id === currentComment._id
+        (comment) => comment._id === currentComment._id,
       );
 
       return isExist
