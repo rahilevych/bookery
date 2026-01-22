@@ -15,7 +15,7 @@
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.4.0",
     "mongoose": "^8.5.1",
-    "next": "14.2.5",
+    "next": "14.2.12",
     "next-auth": "^4.24.7",
     "next-cloudinary": "^6.10.0",
     "react": "^18",
